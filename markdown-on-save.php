@@ -2,7 +2,7 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose posts in Markdown on a once-off basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.0
+Version: 1.1
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -19,13 +19,13 @@ class CWS_Markdown {
 	public function init() {
 		load_plugin_textdomain( 'markdown-on-save', NULL, basename( dirname( __FILE__ ) ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		add_action( 'add_meta_boxes_post', array( $this, 'add_meta_boxes_post' ) );
+		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 	}
 
 	public function wp_insert_post_data( $data, $postarr ) {
-		if ( isset( $_POST['cws_using_markdown'] ) ) {
+		if ( isset( $_POST['cws_using_markdown'] ) && wp_verify_nonce( $_POST['_cws_markdown_nonce'], 'cws-markdown-save' ) ) {
 			$data['post_content_filtered'] = $data['post_content'];
 			$data['post_content'] = $this->unp( Markdown( $data['post_content'] ) );
 			if ( $postarr['ID'] )
@@ -38,12 +38,14 @@ class CWS_Markdown {
 		return $data;
 	}
 
-	public function add_meta_boxes_post() {
-		add_meta_box( 'cws-markdown', __('Markdown'), array( $this, 'meta_box' ), 'post', 'side', 'high' );
+	public function do_meta_boxes( $type, $context ) {
+		if ( 'side' == $context )
+			add_meta_box( 'cws-markdown', __('Markdown'), array( $this, 'meta_box' ), $type, 'side', 'high' );
 	}
 
 	public function meta_box() {
 		global $post;
+		wp_nonce_field( 'cws-markdown-save', '_cws_markdown_nonce', false, true );
 		echo '<p><input type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
 		checked( !! get_post_meta( $post->ID, self::PM, true ) );
 		echo ' /> <label for="cws_using_markdown">' . __( 'This post is formatted with Markdown', 'markdown-on-save' ) . '</label></p>';

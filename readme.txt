@@ -1,16 +1,16 @@
 === Markdown on Save ===
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
-Tags: page, redirect, link, external link, repoint
+Tags: markdown, formatting
 Requires at least: 3.0
-Tested up to: 3.0.1
+Tested up to: 3.2
 Stable tag: 1.0
 
-Allows you to compose posts in Markdown on a once-off basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
+Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
 
 == Description ==
 
-This plugin allows you to compose posts in Markdown on a once-off basis. The markdown version is stored separately (in the `post_content_formatted` column), so you can deactivate this plugin and your posts won't spew out Markdown, because HTML is stored in the `post_content`, just like normal. This is also much faster than doing on-the-fly Markdown conversion on every page load. It's only done once! When you re-edit the post, the markdown version is swapped into the editor for you to edit. If something external updates the post content, you'll lose the Markdown version.
+This plugin allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately (in the `post_content_formatted` column), so you can deactivate this plugin and your posts won't spew out Markdown, because HTML is stored in the `post_content`, just like normal. This is also much faster than doing on-the-fly Markdown conversion on every page load. It's only done once! When you re-edit the post, the markdown version is swapped into the editor for you to edit. If something external updates the post content, you'll lose the Markdown version.
 
 == Installation ==
 
@@ -38,13 +38,17 @@ Please refer to this resource: [http://michelf.com/projects/php-markdown/extra/]
 
 = What happens if I uncheck the Markdown box? =
 
-Your post will no longer be interpreted as Markdown, and you may have to alter the post.
+Your post will no longer be interpreted as Markdown, and you may have to alter the post to remove Markdown formatting.
 
 = What happens if I decide I don't want this plugin anymore? =
 
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 == Changelog ==
+
+= 1.0 =
+* Some extra nonce protection
+* Enable the plugin for all content types, not just posts
 
 = 1.0 =
 * First public version
