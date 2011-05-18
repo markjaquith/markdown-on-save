@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Markdown on Save
-Description: Allows you to compose posts in Markdown on a once-off basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
+Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
 Version: 1.1
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
@@ -40,7 +40,7 @@ class CWS_Markdown {
 
 	public function do_meta_boxes( $type, $context ) {
 		if ( 'side' == $context )
-			add_meta_box( 'cws-markdown', __('Markdown'), array( $this, 'meta_box' ), $type, 'side', 'high' );
+			add_meta_box( 'cws-markdown', __( 'Markdown', 'markdown-on-save' ), array( $this, 'meta_box' ), $type, 'side', 'high' );
 	}
 
 	public function meta_box() {
@@ -51,8 +51,7 @@ class CWS_Markdown {
 		echo ' /> <label for="cws_using_markdown">' . __( 'This post is formatted with Markdown', 'markdown-on-save' ) . '</label></p>';
 	}
 
-	protected function unp( $content ) {
-		// return preg_replace( '<p>', '<foo>', $content );
+	private function unp( $content ) {
 		return preg_replace( "#<p>(.*?)</p>(\n|$)#", '$1$2', $content );
 	}
 

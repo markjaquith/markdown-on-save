@@ -53,3 +53,8 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 = 1.0 =
 * First public version
 * Fixed a regex bug that could break current menu highlighting. props skarab
+
+== Upgrade Notice ==
+
+= 1.1 =
+* Enables the Markdown option for all content types, instead of limiting it to posts
