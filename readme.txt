@@ -14,10 +14,6 @@ This plugin allows you to compose content in Markdown on a per-item basis. The m
 
 == Installation ==
 
-1. [http://coveredwebservices.com/wp-plugin-install/?plugin=markdown-on-save](Click here).
-
-OR
-
 1. Upload the `markdown-on-save` folder to your `/wp-content/plugins/` directory
 
 2. Activate the "Markdown On Save" plugin in your WordPress administration interface
@@ -46,7 +42,10 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 
 == Changelog ==
 
-= 1.0 =
+= 1.1.1 =
+* Fix bug which made the metabox show up on the Dashboard
+
+= 1.1 =
 * Some extra nonce protection
 * Enable the plugin for all content types, not just posts
 
@@ -55,6 +54,9 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 * Fixed a regex bug that could break current menu highlighting. props skarab
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* Prevents the meta box from mistakenly appearing on the Dashboard
 
 = 1.1 =
 * Enables the Markdown option for all content types, instead of limiting it to posts

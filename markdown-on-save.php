@@ -2,7 +2,7 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.1
+Version: 1.1.1
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -39,7 +39,7 @@ class CWS_Markdown {
 	}
 
 	public function do_meta_boxes( $type, $context ) {
-		if ( 'side' == $context )
+		if ( 'side' == $context && in_array( $type, array_keys( get_post_types() ) ) )
 			add_meta_box( 'cws-markdown', __( 'Markdown', 'markdown-on-save' ), array( $this, 'meta_box' ), $type, 'side', 'high' );
 	}
 
