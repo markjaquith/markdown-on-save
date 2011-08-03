@@ -2,7 +2,7 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.1.1
+Version: 1.1.2-beta
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -25,8 +25,9 @@ class CWS_Markdown {
 	}
 
 	public function wp_insert_post_data( $data, $postarr ) {
-		if ( isset( $_POST['cws_using_markdown'] ) && wp_verify_nonce( $_POST['_cws_markdown_nonce'], 'cws-markdown-save' ) ) {
+		if ( isset( $_POST['cws_using_markdown'] ) && wp_verify_nonce( $_POST['_cws_markdown_nonce'], 'cws-markdown-save' ) || false !== stripos($data['post_content'], '<!--markdown-->') ) {
 			$data['post_content_filtered'] = $data['post_content'];
+			$data['post_content'] = str_ireplace('<!--markdown-->', '', $data['post_content']);
 			$data['post_content'] = $this->unp( Markdown( $data['post_content'] ) );
 			if ( $postarr['ID'] )
 				update_post_meta( $postarr['ID'], self::PM, true );
