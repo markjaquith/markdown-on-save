@@ -42,6 +42,10 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 
 == Changelog ==
 
+= 1.1.2 =
+* Fix a slashes bug which would cause link titles to fail
+* Enable Markdown when posting remotely by using <!--markdown--> anywhere in post content
+
 = 1.1.1 =
 * Fix bug which made the metabox show up on the Dashboard
 
@@ -55,8 +59,11 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 
 == Upgrade Notice ==
 
+= 1.1.2 =
+Upgrade to fix the bug that caused "titles" in links to fail parsing
+
 = 1.1.1 =
-* Prevents the meta box from mistakenly appearing on the Dashboard
+Prevents the meta box from mistakenly appearing on the Dashboard
 
 = 1.1 =
-* Enables the Markdown option for all content types, instead of limiting it to posts
+Enables the Markdown option for all content types, instead of limiting it to posts
