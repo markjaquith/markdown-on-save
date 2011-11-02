@@ -25,10 +25,11 @@ class CWS_Markdown {
 	}
 
 	public function wp_insert_post_data( $data, $postarr ) {
+		// Note, the $data array is SLASHED!
 		if ( isset( $_POST['cws_using_markdown'] ) && wp_verify_nonce( $_POST['_cws_markdown_nonce'], 'cws-markdown-save' ) || false !== stripos($data['post_content'], '<!--markdown-->') ) {
 			$data['post_content_filtered'] = $data['post_content'];
 			$data['post_content'] = str_ireplace('<!--markdown-->', '', $data['post_content']);
-			$data['post_content'] = $this->unp( Markdown( $data['post_content'] ) );
+			$data['post_content'] = addslashes( $this->unp( Markdown( stripslashes( $data['post_content'] ) ) ) );
 			if ( $postarr['ID'] )
 				update_post_meta( $postarr['ID'], self::PM, true );
 		} else {
