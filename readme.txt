@@ -4,7 +4,7 @@ Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: markdown, formatting
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin any time.
 
