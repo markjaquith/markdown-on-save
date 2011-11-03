@@ -42,6 +42,9 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 
 == Changelog ==
 
+= 1.1.3 =
+* Disables the Visual Editor if the post being edited is in Markdown mode
+
 = 1.1.2 =
 * Fix a slashes bug which would cause link titles to fail
 * Enable Markdown when posting remotely by using <!--markdown--> anywhere in post content
@@ -58,6 +61,8 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 * Fixed a regex bug that could break current menu highlighting. props skarab
 
 == Upgrade Notice ==
+= 1.1.3 =
+Upgrade to fix the bug that caused "titles" in links to fail parsing and to disable the visual editor in Markdown mode
 
 = 1.1.2 =
 Upgrade to fix the bug that caused "titles" in links to fail parsing
