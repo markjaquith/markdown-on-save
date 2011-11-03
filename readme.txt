@@ -6,7 +6,7 @@ Requires at least: 3.1
 Tested up to: 3.3
 Stable tag: 1.1.2
 
-Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
+Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin any time.
 
 == Description ==
 
