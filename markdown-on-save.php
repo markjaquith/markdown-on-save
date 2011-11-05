@@ -24,6 +24,13 @@ class CWS_Markdown {
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'load-post.php', array( $this, 'load' ) );
+		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
+		add_action( 'init', array( $this, 'maybe_remove_kses' ), 99 );
+		add_action( 'set_current_user', array( $this, 'maybe_remove_kses' ), 99 );
+	}
+
+
+	public function maybe_remove_kses() {
 		if (
 			// Filters return true if they existed before you removed them
 			remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' ) &&
@@ -31,6 +38,41 @@ class CWS_Markdown {
 		) {
 			$this->kses = true;
 		}
+	}
+	public function xmlrpc_actions($xmlrpc_method) {
+		if ( 'metaWeblog.getRecentPosts' === $xmlrpc_method ) {
+			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+		}
+		else if ( 'metaWeblog.getPost' === $xmlrpc_method ) {
+			$this->prime_post_cache();
+		}
+	}
+
+	private function prime_post_cache() {
+		global $wp_xmlrpc_server;
+		$params = $wp_xmlrpc_server->message->params;
+		$post_id = array_shift( $params );
+		// prime the post cache
+		if ( $this->is_markdown( $post_id ) ) {
+			$post = get_post( $post_id );
+			$post->post_content = '<!--markdown-->' . $post->post_content_filtered;
+			wp_cache_delete( $post->ID, 'posts' );
+			wp_cache_add( $post->ID, $post, 'posts' );
+		}
+	}
+
+	public function make_filterable( $wp_query ) {
+		$wp_query->set( 'suppress_filters', false );
+		add_action( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+	}
+	
+	public function the_posts( $posts, $wp_query ) {
+		foreach ( $posts as $key => $post ) {
+			if ( $this->is_markdown( $post->ID ) ) {
+				$posts[$key]->post_content = '<!--markdown-->' . $posts[$key]->post_content_filtered;
+			}
+		}
+		return $posts;
 	}
 
 	public function load() {
@@ -52,17 +94,19 @@ class CWS_Markdown {
 		$comment = false !== stripos( $data['post_content'], '<!--markdown-->' );
 		$data['post_content'] = str_ireplace( '<!--markdown-->', '', $data['post_content'] );
 		if ( ( $nonce && $check ) || $comment ) {
-			$data['post_content'] = str_ireplace('<!--markdown-->', '', $data['post_content']);
 			$data['post_content_filtered'] = $data['post_content'];
 			$data['post_content'] = $this->unp( Markdown( stripslashes( $data['post_content'] ) ) );
 			if ( $this->kses )
 				$data['post_content'] = wp_filter_post_kses( $data['post_content'] );
-			$data['post_content'] = addslashes( $data['post_content'] );
+			else
+				$data['post_content'] = addslashes( $data['post_content'] );
 			if ( $postarr['ID'] )
 				update_post_meta( $postarr['ID'], self::PM, true );
 		} elseif ( ( $nonce && !$check ) || $has_changed ) {
 			if ( $this->kses )
-				$data['post_content'] = addslashes( wp_filter_post_kses( stripslashes( $data['post_content'] ) ) );
+				$data['post_content'] = wp_filter_post_kses( stripslashes( $data['post_content'] ) );
+			else
+				$data['post_content'] = addslashes( $data['post_content'] );
 			$data['post_content_filtered'] = '';
 			if ( $postarr['ID'] )
 				delete_post_meta( $postarr['ID'], self::PM );
