@@ -2,7 +2,7 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.1.3
+Version: 1.1.4-beta
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -10,6 +10,7 @@ Author URI: http://coveredwebservices.com/
 class CWS_Markdown {
 	const PM = '_cws_is_markdown';
 	var $instance;
+	var $kses = false;
 
 	public function __construct() {
 		$this->instance =& $this;
@@ -23,6 +24,13 @@ class CWS_Markdown {
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'load-post.php', array( $this, 'load' ) );
+		if (
+			// Filters return true if they existed before you removed them
+			remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' ) &&
+			remove_filter( 'content_save_pre', 'wp_filter_post_kses' )
+		) {
+			$this->kses = true;
+		}
 	}
 
 	public function load() {
@@ -34,13 +42,27 @@ class CWS_Markdown {
 
 	public function wp_insert_post_data( $data, $postarr ) {
 		// Note, the $data array is SLASHED!
-		if ( isset( $_POST['cws_using_markdown'] ) && wp_verify_nonce( $_POST['_cws_markdown_nonce'], 'cws-markdown-save' ) || false !== stripos($data['post_content'], '<!--markdown-->') ) {
-			$data['post_content_filtered'] = $data['post_content'];
+		$has_changed = false;
+		if ( isset( $postarr['ID'] ) ) {
+			$post = get_post( $postarr['ID'], ARRAY_A );
+			$has_changed = $data['post_content'] !== addslashes( $post['post_content'] );
+		}
+		$nonce = isset( $postarr['_cws_markdown_nonce'] ) && wp_verify_nonce( $postarr['_cws_markdown_nonce'], 'cws-markdown-save' );
+		$check = ( $nonce ) ? isset( $postarr['cws_using_markdown'] ) : false;
+		$comment = false !== stripos( $data['post_content'], '<!--markdown-->' );
+		$data['post_content'] = str_ireplace( '<!--markdown-->', '', $data['post_content'] );
+		if ( ( $nonce && $check ) || $comment ) {
 			$data['post_content'] = str_ireplace('<!--markdown-->', '', $data['post_content']);
-			$data['post_content'] = addslashes( $this->unp( Markdown( stripslashes( $data['post_content'] ) ) ) );
+			$data['post_content_filtered'] = $data['post_content'];
+			$data['post_content'] = $this->unp( Markdown( stripslashes( $data['post_content'] ) ) );
+			if ( $this->kses )
+				$data['post_content'] = wp_filter_post_kses( $data['post_content'] );
+			$data['post_content'] = addslashes( $data['post_content'] );
 			if ( $postarr['ID'] )
 				update_post_meta( $postarr['ID'], self::PM, true );
-		} else {
+		} elseif ( ( $nonce && !$check ) || $has_changed ) {
+			if ( $this->kses )
+				$data['post_content'] = addslashes( wp_filter_post_kses( stripslashes( $data['post_content'] ) ) );
 			$data['post_content_filtered'] = '';
 			if ( $postarr['ID'] )
 				delete_post_meta( $postarr['ID'], self::PM );
@@ -79,6 +101,11 @@ class CWS_Markdown {
 	}
 
 	public function edit_post_content_filtered( $content, $id ) {
+		if ( $this->is_markdown( $id ) ) {
+			$post = get_post( $id );
+			if ( $post )
+				$content = $post->post_content;
+		}
 		return $content;
 	}
 
