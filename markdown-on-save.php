@@ -97,16 +97,12 @@ class CWS_Markdown {
 			$data['post_content_filtered'] = $data['post_content'];
 			$data['post_content'] = $this->unp( Markdown( stripslashes( $data['post_content'] ) ) );
 			if ( $this->kses )
-				$data['post_content'] = wp_filter_post_kses( $data['post_content'] );
-			else
-				$data['post_content'] = addslashes( $data['post_content'] );
+				$data['post_content'] = wp_kses_post( $data['post_content'] );
 			if ( $postarr['ID'] )
 				update_post_meta( $postarr['ID'], self::PM, true );
 		} elseif ( ( $nonce && !$check ) || $has_changed ) {
 			if ( $this->kses )
-				$data['post_content'] = wp_filter_post_kses( stripslashes( $data['post_content'] ) );
-			else
-				$data['post_content'] = addslashes( $data['post_content'] );
+				$data['post_content'] = wp_kses_post( stripslashes( $data['post_content'] ) );
 			$data['post_content_filtered'] = '';
 			if ( $postarr['ID'] )
 				delete_post_meta( $postarr['ID'], self::PM );
