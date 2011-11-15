@@ -41,6 +41,11 @@ Your post will no longer be interpreted as Markdown, and you may have to alter t
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 == Changelog ==
+= 1.1.5 =
+* Fix a `stripslashes()` error
+
+= 1.1.4 =
+* XML-RPC support (use <!--markdown--> to enable Markdown mode)
 
 = 1.1.3 =
 * Disables the Visual Editor if the post being edited is in Markdown mode
@@ -61,6 +66,12 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 * Fixed a regex bug that could break current menu highlighting. props skarab
 
 == Upgrade Notice ==
+= 1.1.5 =
+Update to fix issues with slashes disappearing.
+
+= 1.1.4 =
+Upgrade to use Markdown over XML-RPC (use <!--markdown--> to enable it)
+
 = 1.1.3 =
 Upgrade to fix the bug that caused "titles" in links to fail parsing and to disable the visual editor in Markdown mode
 
