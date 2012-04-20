@@ -2,8 +2,8 @@
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate
 Tags: markdown, formatting
-Requires at least: 3.1
-Tested up to: 3.3
+Requires at least: 3.3
+Tested up to: 3.4
 Stable tag: 1.1.5
 
 Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin any time.
@@ -41,6 +41,12 @@ Your post will no longer be interpreted as Markdown, and you may have to alter t
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 == Changelog ==
+= 1.2 =
+* Keep track of which revisions were Markdown and which were not
+* Restore old revisions properly, including Markdown status
+* Fix a slashing bug that would prevent link titles from parsing
+* Fix a bug related to autosave
+
 = 1.1.5 =
 * Fix a `stripslashes()` error
 
