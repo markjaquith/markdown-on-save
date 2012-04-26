@@ -9,6 +9,7 @@ Author URI: http://coveredwebservices.com/
 
 class CWS_Markdown {
 	const PM = '_cws_is_markdown';
+	const FLAG = '<!--markdown-->';
 	var $instance;
 	var $kses = false;
 	var $debug = false;
@@ -65,7 +66,7 @@ class CWS_Markdown {
 		// prime the post cache
 		if ( $this->is_markdown( $post_id ) ) {
 			$post = get_post( $post_id );
-			$post->post_content = '<!--markdown-->' . $post->post_content_filtered;
+			$post->post_content = self::FLAG . "\n\n" . $post->post_content_filtered;
 			wp_cache_delete( $post->ID, 'posts' );
 			wp_cache_add( $post->ID, $post, 'posts' );
 		}
@@ -84,7 +85,7 @@ class CWS_Markdown {
 	public function the_posts( $posts, $wp_query ) {
 		foreach ( $posts as $key => $post ) {
 			if ( $this->is_markdown( $post->ID ) ) {
-				$posts[$key]->post_content = '<!--markdown-->' . $posts[$key]->post_content_filtered;
+				$posts[$key]->post_content = self::FLAG . "\n\n" . $posts[$key]->post_content_filtered;
 			}
 		}
 		return $posts;
@@ -130,7 +131,7 @@ class CWS_Markdown {
 		$autosave_and_was_markdown = defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE && isset( $post_meta_post_id ) && $this->is_markdown( $post_meta_post_id );
 		$revision_and_was_markdown = 'revision' == $postarr['post_type'] && $this->is_markdown( $postarr['post_parent'] );
 		$check = ( $nonce ) ? isset( $postarr['cws_using_markdown'] ) : false;
-		$comment = false !== stripos( $data['post_content'], '<!--markdown-->' );
+		$comment = false !== stripos( $data['post_content'], self::FLAG );
 		$force_markdown = isset( $postarr['force_markdown'] ) && $postarr['force_markdown'];
 
 		//*
@@ -150,7 +151,7 @@ class CWS_Markdown {
 			'check' => $check,
 		), true ),  E_USER_NOTICE );//*/
 
-		$data['post_content'] = str_ireplace( '<!--markdown-->', '', $data['post_content'] );
+		$data['post_content'] = trim( str_ireplace( self::FLAG, '', $data['post_content'] ) );
 		if ( ( $nonce && $check ) || $comment || $autosave_and_was_markdown || $force_markdown || $revision_and_was_markdown ) {
 			if ( $revision_and_was_markdown && !$has_changed ) {
 				// Copying to a revision from the current post. So grab it from the current post.
