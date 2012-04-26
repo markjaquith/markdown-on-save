@@ -29,6 +29,8 @@ class CWS_Markdown {
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'load-post.php', array( $this, 'load' ) );
+		add_action( 'load-post.php', array( $this, 'enqueue' ) );
+		add_action( 'load-post-new.php', array( $this, 'enqueue' ) );
 		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		add_action( 'init', array( $this, 'maybe_remove_kses' ), 99 );
 		add_action( 'set_current_user', array( $this, 'maybe_remove_kses' ), 99 );
@@ -91,6 +93,10 @@ class CWS_Markdown {
 			}
 		}
 		return $posts;
+	}
+
+	public function enqueue() {
+		wp_enqueue_script( 'markdown-on-save', plugin_dir_url( __FILE__ ) . '/js/markdown-on-save.dev.js', array( 'jquery' ), '20120426' );
 	}
 
 	public function load() {
@@ -183,12 +189,16 @@ class CWS_Markdown {
 	}
 
 	public function do_meta_boxes( $type, $context ) {
-		if ( 'side' == $context && in_array( $type, array_keys( get_post_types() ) ) )
-			add_meta_box( 'cws-markdown', __( 'Markdown', 'markdown-on-save' ), array( $this, 'meta_box' ), $type, 'side', 'high' );
+		if ( 'side' == $context && in_array( $type, array_keys( get_post_types() ) ) ) {
+			$markdown = isset( $GLOBALS['post'] ) && isset( $GLOBALS['post']->ID ) && $this->is_markdown( $GLOBALS['post']->ID ); 
+			$img = '<img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" />';
+			add_meta_box( 'cws-markdown', __( $img, 'markdown-on-save' ), array( $this, 'meta_box' ), $type, 'side', 'high' );
+		}
 	}
 
 	public function meta_box() {
 		global $post;
+		echo '<style>img.markdown-status:hover{cursor:pointer}</style>';
 		wp_nonce_field( 'cws-markdown-save', '_cws_markdown_nonce', false, true );
 		echo '<p><input type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
 		checked( $this->is_markdown( $post->ID ) );
