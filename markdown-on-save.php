@@ -9,11 +9,13 @@ Author URI: http://coveredwebservices.com/
 
 class CWS_Markdown {
 	const PM = '_cws_is_markdown';
+	const PMD = '_cws_is_markdown_gmt';
 	const FLAG = '<!--markdown-->';
 	var $instance;
 	var $kses = false;
 	var $debug = false;
-	var $monitoring_for_revision = false;
+	var $monitoring_for_insert_post = array();
+	var $monitoring_for_insert_post_child = array();
 
 	public function __construct() {
 		$this->instance =& $this;
@@ -109,11 +111,16 @@ class CWS_Markdown {
 	}
 
 	public function wp_insert_post( $post_id ) {
-		if ( !$this->monitoring_for_revision )
-				return $post_id;
-		// Still here? Stop monitoring and mark this bad boy as Markdown
-		$this->monitoring_for_revision = false;
-		$this->set_markdown( $post_id );
+		$post_parent = get_post_field( 'post_parent', $post_id );
+		if ( isset( $this->monitoring_for_insert_post[$post_id] ) ) {
+			unset( $this->monitoring_for_insert_post[$post_id] );
+			$this->set_markdown( $post_id );
+		} elseif ( isset( $this->monitoring_for_insert_post_child[$post_parent] ) ) {
+			unset( $this->monitoring_for_insert_post_child[$post_parent] );
+			$this->set_markdown( $post_id );	
+		} else {
+			return $post_id;
+		}
 	}
 
 	public function wp_insert_post_data( $data, $postarr ) {
@@ -162,9 +169,9 @@ class CWS_Markdown {
 			if ( $this->kses )
 				$data['post_content'] = wp_kses_post( $data['post_content'] );
 			if ( $postarr['ID'] )
-				$this->set_markdown( $postarr['ID'] );
-			if ( $revision_and_was_markdown )
-				$this->monitoring_for_revision = true; // We don't know the ID of the revision yet, so we tell our wp_insert_post() hook it's on the way.
+				$this->monitoring_for_insert_post[$postarr['ID']] = true; // Defer this, for when we know the post_modified_gmt value
+			elseif ( $revision_and_was_markdown )
+				$this->monitoring_for_insert_post_child[$data['post_parent']] = true; // We may not know the ID of the revision yet, so we tell our wp_insert_post() hook it's on the way.
 		} elseif ( ( $nonce && !$check ) || $has_changed ) {
 			if ( $this->kses )
 				$data['post_content'] = wp_kses_post( $data['post_content'] );
@@ -193,14 +200,19 @@ class CWS_Markdown {
 	}
 
 	private function is_markdown( $post_id ) {
-		return !! get_metadata( 'post', $post_id, self::PM, true );
+		$markdown = get_metadata( 'post', $post_id, self::PM, true );
+		$date_match = get_post_field( 'post_modified_gmt', $post_id ) == get_metadata( 'post', $post_id, self::PMD, true );
+		$is_markdown = ( 2 == $markdown && $date_match ) || ( $markdown && 2 != $markdown );
+		return !! $is_markdown;
 	}
 
 	private function set_markdown( $post_id ) {
-		return update_metadata( 'post', $post_id, self::PM, 1 );
+		update_metadata( 'post', $post_id, self::PMD, get_post_field( 'post_modified_gmt', $post_id ) );
+		return update_metadata( 'post', $post_id, self::PM, 2 );
 	}
 
 	private function set_not_markdown( $post_id ) {
+		delete_metadata( 'post', $post_id, self::PMD );
 		return delete_metadata( 'post', $post_id, self::PM );
 	}
 
