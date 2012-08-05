@@ -25,7 +25,8 @@ class CWS_Markdown {
 	public function init() {
 		load_plugin_textdomain( 'markdown-on-save', NULL, basename( dirname( __FILE__ ) ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
+		// add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
+		add_action( 'post_submitbox_misc_actions', array( $this, 'submitbox_actions' ) );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
 		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
 		add_action( 'load-post.php', array( $this, 'load' ) );
@@ -188,12 +189,19 @@ class CWS_Markdown {
 		return $data;
 	}
 
-	public function do_meta_boxes( $type, $context ) {
-		if ( 'side' == $context && in_array( $type, array_keys( get_post_types() ) ) ) {
-			$markdown = isset( $GLOBALS['post'] ) && isset( $GLOBALS['post']->ID ) && $this->is_markdown( $GLOBALS['post']->ID ); 
-			$img = '<img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" />';
-			add_meta_box( 'cws-markdown', __( $img, 'markdown-on-save' ), array( $this, 'meta_box' ), $type, 'side', 'high' );
-		}
+	public function submitbox_actions() {
+		$markdown = isset( $GLOBALS['post'] ) && isset( $GLOBALS['post']->ID ) && $this->is_markdown( $GLOBALS['post']->ID );
+		echo '<style>#submitdiv h3 > span { margin-left: 38px; } #cws-markdown { position: absolute; top: 5px; left: 10px; } #cws-markdown img { vertical-align: bottom;margin-right: 10px; }</style><wrap id="cws-markdown"><a href="#" onclick="return false;"><img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" /></a></wrap><script>
+		(function($){
+			$( "#cws-markdown" ).detach().insertBefore( "#submitdiv h3 span" );
+		}(jQuery));
+		</script>';
+		echo $img;
+		echo '<input style="display: none" type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
+		checked( $this->is_markdown( $post->ID ) );
+		echo ' />';
+		wp_nonce_field( 'cws-markdown-save', '_cws_markdown_nonce', false, true );
+
 	}
 
 	public function meta_box() {
