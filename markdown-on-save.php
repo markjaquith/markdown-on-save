@@ -196,9 +196,8 @@ class CWS_Markdown {
 			$( "#cws-markdown" ).detach().insertBefore( "#submitdiv h3 span" );
 		}(jQuery));
 		</script>';
-		echo $img;
 		echo '<input style="display: none" type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
-		checked( $this->is_markdown( $post->ID ) );
+		checked( $this->is_markdown( $GLOBALS['post']->ID ) );
 		echo ' />';
 		wp_nonce_field( 'cws-markdown-save', '_cws_markdown_nonce', false, true );
 
