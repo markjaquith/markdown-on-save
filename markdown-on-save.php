@@ -2,7 +2,7 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.2-beta-1
+Version: 1.2-beta-2
 Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
@@ -58,8 +58,11 @@ class CWS_Markdown {
 	public function xmlrpc_actions($xmlrpc_method) {
 		if ( 'metaWeblog.getRecentPosts' === $xmlrpc_method ) {
 			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
-		}
-		else if ( 'metaWeblog.getPost' === $xmlrpc_method ) {
+		} elseif ( 'metaWeblog.getPost' === $xmlrpc_method ) {
+			$this->prime_post_cache();
+		} elseif ( 'wp.getPosts' === $xmlrpc_method ) {
+			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+		} elseif ( 'wp.getPost' === $xmlrpc_method ) {
 			$this->prime_post_cache();
 		}
 	}
@@ -86,7 +89,7 @@ class CWS_Markdown {
 		$wp_query->set( 'suppress_filters', false );
 		add_action( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
 	}
-	
+
 	public function the_posts( $posts, $wp_query ) {
 		foreach ( $posts as $key => $post ) {
 			if ( $this->is_markdown( $post->ID ) ) {
@@ -124,7 +127,7 @@ class CWS_Markdown {
 			$this->set_markdown( $post_id );
 		} elseif ( isset( $this->monitoring_for_insert_post_child[$post_parent] ) ) {
 			unset( $this->monitoring_for_insert_post_child[$post_parent] );
-			$this->set_markdown( $post_id );	
+			$this->set_markdown( $post_id );
 		} else {
 			return $post_id;
 		}
