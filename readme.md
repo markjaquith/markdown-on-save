@@ -1,10 +1,10 @@
 # Markdown on Save #
-Contributors: markjaquith
-Donate link: http://txfx.net/wordpress-plugins/donate
-Tags: markdown, formatting
-Requires at least: 3.3
-Tested up to: 3.5
-Stable tag: 1.1.5
+Contributors: markjaquith  
+Donate link: http://txfx.net/wordpress-plugins/donate  
+Tags: markdown, formatting  
+Requires at least: 3.3  
+Tested up to: 3.5  
+Stable tag: 1.1.5  
 
 Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin any time.
 
