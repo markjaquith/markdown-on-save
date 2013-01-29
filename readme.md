@@ -42,6 +42,7 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 
 ## Changelog ##
 ### 1.2 ###
+* Update PHP Markdown Extra to 1.2.6
 * Keep track of which revisions were Markdown and which were not
 * Restore old revisions properly, including Markdown status
 * Fix a slashing bug that would prevent link titles from parsing
