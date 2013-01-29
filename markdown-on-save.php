@@ -256,5 +256,18 @@ class CWS_Markdown {
 
 }
 
+// Kill global $wp_version, so MarkdownExtra doesn't load its own WordPress plugin code
+$_wp_version = $GLOBALS['wp_version'];
+unset( $GLOBALS['wp_version'] );
+
+// Also do it the approved way
+@define( 'MARKDOWN_WP_POSTS', false );
+@define( 'MARKDOWN_WP_COMMENTS', false );
+
 require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
+
+// Restore $wp_version
+$GLOBALS['wp_version'] = $_wp_version;
+unset( $_wp_version );
+
 new CWS_Markdown;
