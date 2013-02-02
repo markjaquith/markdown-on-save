@@ -151,7 +151,7 @@ class CWS_Markdown {
 		$comment = false !== stripos( $data['post_content'], self::FLAG );
 		$force_markdown = isset( $postarr['force_markdown'] ) && $postarr['force_markdown'];
 
-		//*
+		/*
 		$this->trigger_error( var_export( array(
 			'ID' => $postarr['ID'],
 			'post_type' => $postarr['post_type'],
