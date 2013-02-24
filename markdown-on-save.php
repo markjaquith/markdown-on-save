@@ -260,7 +260,8 @@ unset( $GLOBALS['wp_version'] );
 @define( 'MARKDOWN_WP_POSTS', false );
 @define( 'MARKDOWN_WP_COMMENTS', false );
 
-require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
+if ( ! class_exists( 'MarkdownExtra_Parser' ) )
+	require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
 
 // Restore $wp_version
 $GLOBALS['wp_version'] = $_wp_version;
