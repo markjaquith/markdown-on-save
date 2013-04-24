@@ -41,6 +41,9 @@ Your post will no longer be interpreted as Markdown, and you may have to alter t
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 ## Changelog ##
+### 1.2.1 ###
+* Play better with other plugins that also use PHP Markdown Extra
+
 ### 1.2 ###
 * Update PHP Markdown Extra to 1.2.6
 * Keep track of which revisions were Markdown and which were not
@@ -75,6 +78,9 @@ Just deactivate it. The Markdown version is stored separately, so without the pl
 * Fixed a regex bug that could break current menu highlighting. props skarab
 
 ## Upgrade Notice ##
+### 1.2.1 ###
+Update if another Markdown plugin isn't playing well with Markdown on Save
+
 ### 1.1.5 ###
 Update to fix issues with slashes disappearing.
 
