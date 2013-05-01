@@ -10,7 +10,7 @@ Allows you to compose content in Markdown on a per-item basis. The markdown vers
 
 ## Description ##
 
-This plugin allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately (in the `post_content_formatted` column), so you can deactivate this plugin and your posts won't spew out Markdown, because HTML is stored in the `post_content`, just like normal. This is also much faster than doing on-the-fly Markdown conversion on every page load. It's only done once! When you re-edit the post, the markdown version is swapped into the editor for you to edit. If something external updates the post content, you'll lose the Markdown version.
+This plugin allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately (in the `post_content_filtered` column), so you can deactivate this plugin and your posts won't spew out Markdown, because HTML is stored in the `post_content`, just like normal. This is also much faster than doing on-the-fly Markdown conversion on every page load. It's only done once! When you re-edit the post, the markdown version is swapped into the editor for you to edit. If something external updates the post content, you'll lose the Markdown version.
 
 ## Installation ##
 
