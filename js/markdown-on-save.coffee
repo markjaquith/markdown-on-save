@@ -14,7 +14,7 @@ do ($ = jQuery) ->
 		delay: (ms, f) -> setTimeout f, ms
 		start: ->
 			context    = $ '#cws-markdown'
-			context.detach().insertBefore('#submitdiv h3 span').show()
+			context.detach().insertBefore('#submitdiv h2 span, #submitdiv h3 span').show()
 			@buttonOn  = $ 'img.markdown-on',  context
 			@buttonOff = $ 'img.markdown-off', context
 			@checkbox  = $ '#cws_using_markdown'
