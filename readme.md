@@ -18,13 +18,13 @@ This plugin allows you to compose content in Markdown on a per-item basis. The m
 
 2. Activate the "Markdown On Save" plugin in your WordPress administration interface
 
-3. Create a new post with Markdown, and check the "This post is formatted with Markdown" box.
+3. Create a new post with Markdown, and click the Markdown logo in the publish metabox (see screenshot).
 
 4. Done! Now that post can be edited using Markdown, but will save as processed HTML on the backend.
 
 ## Screenshots ##
 
-1. The meta box where you designate a post as containing Markdown. This is the only UI for the plugin!
+1. The Markdown logo you click to designate a post as containing Markdown. This is the only UI for the plugin!
 
 ## Frequently Asked Questions ##
 
@@ -32,15 +32,18 @@ This plugin allows you to compose content in Markdown on a per-item basis. The m
 
 Please refer to this resource: [http://michelf.com/projects/php-markdown/extra/](PHP Markdown Extra).
 
-### What happens if I uncheck the Markdown box? ###
+### What happens if I click the Markdown logo again? ###
 
-Your post will no longer be interpreted as Markdown, and you may have to alter the post to remove Markdown formatting.
+Your post will no longer be interpreted as Markdown, you will be returned to the normal editing experience.
 
 ### What happens if I decide I don't want this plugin anymore? ###
 
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 ## Changelog ##
+### unreleased ###
+* Update documentation to reflect newer interface
+
 ### 1.2.1 ###
 * Play better with other plugins that also use PHP Markdown Extra
 
