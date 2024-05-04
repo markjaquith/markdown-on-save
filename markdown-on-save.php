@@ -14,30 +14,30 @@ class CWS_Markdown {
 	var $instance;
 	var $kses = false;
 	var $debug = false;
-	var $monitoring_for_insert_post = array();
-	var $monitoring_for_insert_post_child = array();
+	var $monitoring_for_insert_post = [];
+	var $monitoring_for_insert_post_child = [];
 
 	public function __construct() {
 		$this->instance =& $this;
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'init', [ $this, 'init' ] );
 	}
 
 	public function init() {
 		load_plugin_textdomain( 'markdown-on-save', NULL, basename( dirname( __FILE__ ) ) );
-		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		// add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
-		add_action( 'post_submitbox_misc_actions', array( $this, 'submitbox_actions' ) );
-		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
-		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
-		add_action( 'load-post.php', array( $this, 'load' ) );
-		add_action( 'load-post.php', array( $this, 'enqueue' ) );
-		add_action( 'load-post-new.php', array( $this, 'enqueue' ) );
-		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
-		add_action( 'init', array( $this, 'maybe_remove_kses' ), 99 );
-		add_action( 'set_current_user', array( $this, 'maybe_remove_kses' ), 99 );
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
-		add_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
-		add_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
+		add_filter( 'wp_insert_post_data', [ $this, 'wp_insert_post_data' ], 10, 2 );
+		// add_action( 'do_meta_boxes', [ $this, 'do_meta_boxes' ], 20, 2 );
+		add_action( 'post_submitbox_misc_actions', [ $this, 'submitbox_actions' ] );
+		add_filter( 'edit_post_content', [ $this, 'edit_post_content' ], 10, 2 );
+		add_filter( 'edit_post_content_filtered', [ $this, 'edit_post_content_filtered' ], 10, 2 );
+		add_action( 'load-post.php', [ $this, 'load' ] );
+		add_action( 'load-post.php', [ $this, 'enqueue' ] );
+		add_action( 'load-post-new.php', [ $this, 'enqueue' ] );
+		add_action( 'xmlrpc_call', [ $this, 'xmlrpc_actions' ] );
+		add_action( 'init', [ $this, 'maybe_remove_kses' ], 99 );
+		add_action( 'set_current_user', [ $this, 'maybe_remove_kses' ], 99 );
+		add_action( 'wp_insert_post', [ $this, 'wp_insert_post' ] );
+		add_action( 'wp_restore_post_revision', [ $this, 'wp_restore_post_revision' ], 10, 2 );
+		add_filter( '_wp_post_revision_fields', [ $this, '_wp_post_revision_fields' ] );
 	}
 
 	private function trigger_error( $error, $type = E_USER_NOTICE ) {
@@ -57,11 +57,11 @@ class CWS_Markdown {
 
 	public function xmlrpc_actions($xmlrpc_method) {
 		if ( 'metaWeblog.getRecentPosts' === $xmlrpc_method ) {
-			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+			add_action( 'parse_query', [ $this, 'make_filterable' ], 10, 1 );
 		} elseif ( 'metaWeblog.getPost' === $xmlrpc_method ) {
 			$this->prime_post_cache();
 		} elseif ( 'wp.getPosts' === $xmlrpc_method ) {
-			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+			add_action( 'parse_query', [ $this, 'make_filterable' ], 10, 1 );
 		} elseif ( 'wp.getPost' === $xmlrpc_method ) {
 			$this->prime_post_cache();
 		}
@@ -87,7 +87,7 @@ class CWS_Markdown {
 
 	public function make_filterable( $wp_query ) {
 		$wp_query->set( 'suppress_filters', false );
-		add_action( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+		add_action( 'the_posts', [ $this, 'the_posts' ], 10, 2 );
 	}
 
 	public function the_posts( $posts, $wp_query ) {
@@ -100,7 +100,7 @@ class CWS_Markdown {
 	}
 
 	public function enqueue() {
-		wp_enqueue_script( 'markdown-on-save', plugin_dir_url( __FILE__ ) . '/js/markdown-on-save.js', array( 'jquery' ), '20120426' );
+		wp_enqueue_script( 'markdown-on-save', plugin_dir_url( __FILE__ ) . '/js/markdown-on-save.js', [ 'jquery' ], '20120426' );
 	}
 
 	public function load() {
@@ -150,23 +150,6 @@ class CWS_Markdown {
 		$check = ( $nonce ) ? isset( $postarr['cws_using_markdown'] ) : false;
 		$comment = false !== stripos( $data['post_content'], self::FLAG );
 		$force_markdown = isset( $postarr['force_markdown'] ) && $postarr['force_markdown'];
-
-		/*
-		$this->trigger_error( var_export( array(
-			'ID' => $postarr['ID'],
-			'post_type' => $postarr['post_type'],
-			'post_parent' => $postarr['post_parent'],
-			'pm_ID' => $this->is_markdown( $postarr['ID'] ),
-			'pm_parent' => $this->is_markdown( $postarr['post_parent'] ),
-			'autosave' => defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE,
-			'autosave_and_was_md' => $autosave_and_was_markdown,
-			'revision_and_was_md' => $revision_and_was_markdown,
-			'post_content' => $data['post_content'],
-			'post_content_filtered' => $data['post_content_filtered'],
-			'has_changed' => $has_changed,
-			'nonce' => $nonce,
-			'check' => $check,
-		), true ),  E_USER_NOTICE );//*/
 
 		$data['post_content'] = trim( str_ireplace( self::FLAG, '', $data['post_content'] ) );
 		if ( ( $nonce && $check ) || $comment || $autosave_and_was_markdown || $force_markdown || $revision_and_was_markdown ) {
