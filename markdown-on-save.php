@@ -40,11 +40,6 @@ class CWS_Markdown {
 		add_filter( '_wp_post_revision_fields', [ $this, '_wp_post_revision_fields' ] );
 	}
 
-	private function trigger_error( $error, $type = E_USER_NOTICE ) {
-		if ( $this->debug )
-			trigger_error( $error, $type );
-	}
-
 	public function maybe_remove_kses() {
 		if (
 			// Filters return true if they existed before you removed them
