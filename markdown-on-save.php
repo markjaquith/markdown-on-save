@@ -2,47 +2,48 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.2.1
+Version: 1.3.0
 Author: Mark Jaquith
-Author URI: http://coveredwebservices.com/
+Author URI: http://coveredweb.com/
 */
+
+use \Michelf\Markdown;
+
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+} else {
+	wp_die('Markdown on Save: Markdown library not found. Did you run `composer install`?');
+}
 
 class CWS_Markdown {
 	const PM = '_cws_is_markdown';
 	const PMD = '_cws_is_markdown_gmt';
 	const FLAG = '<!--markdown-->';
-	var $instance;
-	var $kses = false;
-	var $debug = false;
-	var $monitoring_for_insert_post = array();
-	var $monitoring_for_insert_post_child = array();
+	public $kses = false;
+	public $debug = false;
+	public $monitoring_for_insert_post = [];
+	public $monitoring_for_insert_post_child = [];
 
 	public function __construct() {
-		$this->instance =& $this;
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'init', [ $this, 'init' ] );
 	}
 
 	public function init() {
 		load_plugin_textdomain( 'markdown-on-save', NULL, basename( dirname( __FILE__ ) ) );
-		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
-		// add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
-		add_action( 'post_submitbox_misc_actions', array( $this, 'submitbox_actions' ) );
-		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
-		add_filter( 'edit_post_content_filtered', array( $this, 'edit_post_content_filtered' ), 10, 2 );
-		add_action( 'load-post.php', array( $this, 'load' ) );
-		add_action( 'load-post.php', array( $this, 'enqueue' ) );
-		add_action( 'load-post-new.php', array( $this, 'enqueue' ) );
-		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
-		add_action( 'init', array( $this, 'maybe_remove_kses' ), 99 );
-		add_action( 'set_current_user', array( $this, 'maybe_remove_kses' ), 99 );
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
-		add_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
-		add_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
-	}
-
-	private function trigger_error( $error, $type = E_USER_NOTICE ) {
-		if ( $this->debug )
-			trigger_error( $error, $type );
+		add_filter( 'wp_insert_post_data', [ $this, 'wp_insert_post_data' ], 10, 2 );
+		// add_action( 'do_meta_boxes', [ $this, 'do_meta_boxes' ], 20, 2 );
+		add_action( 'post_submitbox_misc_actions', [ $this, 'submitbox_actions' ] );
+		add_filter( 'edit_post_content', [ $this, 'edit_post_content' ], 10, 2 );
+		add_filter( 'edit_post_content_filtered', [ $this, 'edit_post_content_filtered' ], 10, 2 );
+		add_action( 'load-post.php', [ $this, 'load' ] );
+		add_action( 'load-post.php', [ $this, 'enqueue' ] );
+		add_action( 'load-post-new.php', [ $this, 'enqueue' ] );
+		add_action( 'xmlrpc_call', [ $this, 'xmlrpc_actions' ] );
+		add_action( 'init', [ $this, 'maybe_remove_kses' ], 99 );
+		add_action( 'set_current_user', [ $this, 'maybe_remove_kses' ], 99 );
+		add_action( 'wp_insert_post', [ $this, 'wp_insert_post' ] );
+		add_action( 'wp_restore_post_revision', [ $this, 'wp_restore_post_revision' ], 10, 2 );
+		add_filter( '_wp_post_revision_fields', [ $this, '_wp_post_revision_fields' ] );
 	}
 
 	public function maybe_remove_kses() {
@@ -57,11 +58,11 @@ class CWS_Markdown {
 
 	public function xmlrpc_actions($xmlrpc_method) {
 		if ( 'metaWeblog.getRecentPosts' === $xmlrpc_method ) {
-			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+			add_action( 'parse_query', [ $this, 'make_filterable' ], 10, 1 );
 		} elseif ( 'metaWeblog.getPost' === $xmlrpc_method ) {
 			$this->prime_post_cache();
 		} elseif ( 'wp.getPosts' === $xmlrpc_method ) {
-			add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
+			add_action( 'parse_query', [ $this, 'make_filterable' ], 10, 1 );
 		} elseif ( 'wp.getPost' === $xmlrpc_method ) {
 			$this->prime_post_cache();
 		}
@@ -87,7 +88,7 @@ class CWS_Markdown {
 
 	public function make_filterable( $wp_query ) {
 		$wp_query->set( 'suppress_filters', false );
-		add_action( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+		add_action( 'the_posts', [ $this, 'the_posts' ], 10, 2 );
 	}
 
 	public function the_posts( $posts, $wp_query ) {
@@ -100,7 +101,7 @@ class CWS_Markdown {
 	}
 
 	public function enqueue() {
-		wp_enqueue_script( 'markdown-on-save', plugin_dir_url( __FILE__ ) . '/js/markdown-on-save.js', array( 'jquery' ), '20120426' );
+		wp_enqueue_script( 'markdown-on-save', plugin_dir_url( __FILE__ ) . '/js/markdown-on-save.js', [ 'jquery' ], '20120426' );
 	}
 
 	public function load() {
@@ -133,13 +134,17 @@ class CWS_Markdown {
 		}
 	}
 
+	public function format( $text ) {
+		return Markdown::defaultTransform( $text );
+	}
+
 	public function wp_insert_post_data( $data, $postarr ) {
 		// Note, the $data array is SLASHED!
 		$has_changed = false;
 		if ( isset( $postarr['ID'] ) ) {
 			$post_meta_post_id = $postarr['ID'];
 			$post = get_post( $postarr['ID'], ARRAY_A );
-			$has_changed = $data['post_content'] !== addslashes( $post['post_content'] );
+			$has_changed = $data['post_content'] !== addslashes( $post['post_content'] ?? '' );
 			// Note that $has_changed is only correct in a non-Markdown-aware saving mode.
 		} elseif ( isset( $postarr['post_parent'] ) && $postarr['post_parent'] ) {
 			$post = get_post( $postarr['post_parent'], ARRAY_A );
@@ -151,23 +156,6 @@ class CWS_Markdown {
 		$comment = false !== stripos( $data['post_content'], self::FLAG );
 		$force_markdown = isset( $postarr['force_markdown'] ) && $postarr['force_markdown'];
 
-		/*
-		$this->trigger_error( var_export( array(
-			'ID' => $postarr['ID'],
-			'post_type' => $postarr['post_type'],
-			'post_parent' => $postarr['post_parent'],
-			'pm_ID' => $this->is_markdown( $postarr['ID'] ),
-			'pm_parent' => $this->is_markdown( $postarr['post_parent'] ),
-			'autosave' => defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE,
-			'autosave_and_was_md' => $autosave_and_was_markdown,
-			'revision_and_was_md' => $revision_and_was_markdown,
-			'post_content' => $data['post_content'],
-			'post_content_filtered' => $data['post_content_filtered'],
-			'has_changed' => $has_changed,
-			'nonce' => $nonce,
-			'check' => $check,
-		), true ),  E_USER_NOTICE );//*/
-
 		$data['post_content'] = trim( str_ireplace( self::FLAG, '', $data['post_content'] ) );
 		if ( ( $nonce && $check ) || $comment || $autosave_and_was_markdown || $force_markdown || $revision_and_was_markdown ) {
 			if ( $revision_and_was_markdown && !$has_changed ) {
@@ -175,7 +163,7 @@ class CWS_Markdown {
 				$data['post_content'] = addslashes( $post['post_content_filtered'] );
 			}
 			$data['post_content_filtered'] = $data['post_content'];
-			$data['post_content'] = addslashes( $this->unp( Markdown( stripslashes( $data['post_content'] ) ) ) );
+			$data['post_content'] = addslashes( $this->unp( $this->format( stripslashes( $data['post_content'] ) ) ) );
 			if ( $this->kses )
 				$data['post_content'] = wp_kses_post( $data['post_content'] );
 			if ( $postarr['ID'] )
@@ -194,7 +182,35 @@ class CWS_Markdown {
 
 	public function submitbox_actions() {
 		$markdown = isset( $GLOBALS['post'] ) && isset( $GLOBALS['post']->ID ) && $this->is_markdown( $GLOBALS['post']->ID );
-		echo '<style>#submitdiv h2 > span, #submitdiv h3 > span { margin-left: 38px; } #cws-markdown { position: absolute; top: 5px; left: 10px; } #cws-markdown img { vertical-align: bottom;margin-right: 10px; } #cws-markdown a:active { outline: 0 !important }</style><wrap id="cws-markdown" style="display: none"><a href="#" onclick="return false;"><img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" /></a></wrap><script>document.getElementById("cws-markdown").style.display = "none";</script>';
+		echo '
+			<style>
+					#submitdiv h2, #submitdiv h3 {
+						margin-left: 38px;
+					}
+					#cws-markdown {
+						position: absolute;
+						top: 7px;
+						left: 10px;
+					}
+					#cws-markdown img {
+						vertical-align: bottom;
+						margin-right: 10px;
+					}
+					#cws-markdown button {
+						all: unset;
+						display: inline;
+						background: none;
+						color: inherit;
+						font: inherit;
+						border: none;
+						padding: 0;
+						margin: 0;
+						cursor: pointer;
+					}
+			</style>
+		';
+		echo '<div id="cws-markdown" style="display: none"><button type="button"><img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" /></button></div>';
+		echo '<script>document.getElementById("cws-markdown").style.display = "none";</script>';
 		echo '<input style="display: none" type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
 		checked( $this->is_markdown( $GLOBALS['post']->ID ) );
 		echo ' />';
@@ -251,20 +267,5 @@ class CWS_Markdown {
 	}
 
 }
-
-// Kill global $wp_version, so MarkdownExtra doesn't load its own WordPress plugin code
-$_wp_version = $GLOBALS['wp_version'];
-unset( $GLOBALS['wp_version'] );
-
-// Also do it the approved way
-@define( 'MARKDOWN_WP_POSTS', false );
-@define( 'MARKDOWN_WP_COMMENTS', false );
-
-if ( ! class_exists( 'MarkdownExtra_Parser' ) )
-	require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
-
-// Restore $wp_version
-$GLOBALS['wp_version'] = $_wp_version;
-unset( $_wp_version );
 
 new CWS_Markdown;
