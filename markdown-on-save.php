@@ -7,6 +7,14 @@ Author: Mark Jaquith
 Author URI: http://coveredwebservices.com/
 */
 
+use \Michelf\Markdown;
+
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+} else {
+	wp_die('Markdown on Save: Markdown library not found. Did you run `composer install`?');
+}
+
 class CWS_Markdown {
 	const PM = '_cws_is_markdown';
 	const PMD = '_cws_is_markdown_gmt';
@@ -126,6 +134,10 @@ class CWS_Markdown {
 		}
 	}
 
+	public function format( $text ) {
+		return Markdown::defaultTransform( $text );
+	}
+
 	public function wp_insert_post_data( $data, $postarr ) {
 		// Note, the $data array is SLASHED!
 		$has_changed = false;
@@ -151,7 +163,7 @@ class CWS_Markdown {
 				$data['post_content'] = addslashes( $post['post_content_filtered'] );
 			}
 			$data['post_content_filtered'] = $data['post_content'];
-			$data['post_content'] = addslashes( $this->unp( Markdown( stripslashes( $data['post_content'] ) ) ) );
+			$data['post_content'] = addslashes( $this->unp( $this->format( stripslashes( $data['post_content'] ) ) ) );
 			if ( $this->kses )
 				$data['post_content'] = wp_kses_post( $data['post_content'] );
 			if ( $postarr['ID'] )
@@ -228,21 +240,6 @@ class CWS_Markdown {
 		return $content;
 	}
 
-}
-
-// Kill global $wp_version, so MarkdownExtra doesn't load its own WordPress plugin code
-if (isset($GLOBALS['wp_version'])) {
-	$_wp_version = $GLOBALS['wp_version'];
-	unset( $GLOBALS['wp_version'] );
-}
-
-if ( ! class_exists( 'MarkdownExtra_Parser' ) )
-	require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
-
-// Restore $wp_version
-if (isset($_wp_version)) {
-	$GLOBALS['wp_version'] = $_wp_version;
-	unset( $_wp_version );
 }
 
 new CWS_Markdown;
