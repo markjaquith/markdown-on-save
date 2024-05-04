@@ -5,6 +5,7 @@ Description: Allows you to compose content in Markdown on a per-item basis. The 
 Version: 1.3.1
 Author: Mark Jaquith
 Author URI: http://coveredweb.com/
+License: GPLv2 or later
 */
 
 use \Michelf\MarkdownExtra;
