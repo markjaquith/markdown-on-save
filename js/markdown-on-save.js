@@ -18,7 +18,7 @@
 		},
 		start() {
 			const context = $('#cws-markdown')
-			context.detach().insertBefore('#submitdiv h2 span, #submitdiv h3 span').show()
+			context.detach().insertBefore('#submitdiv h2, #submitdiv h3').show()
 			this.buttonOn = context.find('img.markdown-on')
 			this.buttonOff = context.find('img.markdown-off')
 			this.checkbox = $('#cws_using_markdown')
@@ -49,12 +49,12 @@
 		},
 		events() {
 			;[this.buttonOn, this.buttonOff].forEach((b) => {
-				b.click((e) => {
+				b.on('click', (e) => {
 					e.stopPropagation() // Keep metabox from toggling
 					this.checkbox.click()
 				})
 			})
-			this.checkbox.change(this.setFromCheckbox.bind(this))
+			this.checkbox.on('change', this.setFromCheckbox.bind(this))
 		},
 	}
 	window.markdownOnSaveApp = app
