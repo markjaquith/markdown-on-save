@@ -11,14 +11,12 @@ class CWS_Markdown {
 	const PM = '_cws_is_markdown';
 	const PMD = '_cws_is_markdown_gmt';
 	const FLAG = '<!--markdown-->';
-	var $instance;
-	var $kses = false;
-	var $debug = false;
-	var $monitoring_for_insert_post = [];
-	var $monitoring_for_insert_post_child = [];
+	public $kses = false;
+	public $debug = false;
+	public $monitoring_for_insert_post = [];
+	public $monitoring_for_insert_post_child = [];
 
 	public function __construct() {
-		$this->instance =& $this;
 		add_action( 'init', [ $this, 'init' ] );
 	}
 
@@ -235,10 +233,6 @@ if (isset($GLOBALS['wp_version'])) {
 	$_wp_version = $GLOBALS['wp_version'];
 	unset( $GLOBALS['wp_version'] );
 }
-
-// Also do it the approved way
-@define( 'MARKDOWN_WP_POSTS', false );
-@define( 'MARKDOWN_WP_COMMENTS', false );
 
 if ( ! class_exists( 'MarkdownExtra_Parser' ) )
 	require_once( dirname( __FILE__) . '/markdown-extra/markdown-extra.php' );
