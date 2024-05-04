@@ -3,7 +3,7 @@ Contributors: markjaquith
 Tags: markdown, formatting
 Requires at least: 6.0
 Tested up to: 6.5
-Stable tag: 1.2.1
+Stable tag: 1.3.1
 
 Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin any time.
 
@@ -42,6 +42,9 @@ Your post will no longer be interpreted as Markdown, you will be returned to the
 Just deactivate it. The Markdown version is stored separately, so without the plugin, you'll just revert to editing the HTML version.
 
 == Changelog ==
+= 1.3.1 =
+* Use the "extra" version of Markdown with all the features
+
 = 1.3 =
 * Modern PHP syntax
 * Better accessibility

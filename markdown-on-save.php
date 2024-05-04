@@ -2,12 +2,12 @@
 /*
 Plugin Name: Markdown on Save
 Description: Allows you to compose content in Markdown on a per-item basis. The markdown version is stored separately, so you can deactivate this plugin and your posts won't spew out Markdown.
-Version: 1.3.0
+Version: 1.3.1
 Author: Mark Jaquith
 Author URI: http://coveredweb.com/
 */
 
-use \Michelf\Markdown;
+use \Michelf\MarkdownExtra;
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -135,7 +135,7 @@ class CWS_Markdown {
 	}
 
 	public function format( $text ) {
-		return Markdown::defaultTransform( $text );
+		return MarkdownExtra::defaultTransform( $text );
 	}
 
 	public function wp_insert_post_data( $data, $postarr ) {
