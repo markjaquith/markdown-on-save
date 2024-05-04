@@ -139,7 +139,7 @@ class CWS_Markdown {
 		if ( isset( $postarr['ID'] ) ) {
 			$post_meta_post_id = $postarr['ID'];
 			$post = get_post( $postarr['ID'], ARRAY_A );
-			$has_changed = $data['post_content'] !== addslashes( $post['post_content'] );
+			$has_changed = $data['post_content'] !== addslashes( $post['post_content'] ?? '' );
 			// Note that $has_changed is only correct in a non-Markdown-aware saving mode.
 		} elseif ( isset( $postarr['post_parent'] ) && $postarr['post_parent'] ) {
 			$post = get_post( $postarr['post_parent'], ARRAY_A );
