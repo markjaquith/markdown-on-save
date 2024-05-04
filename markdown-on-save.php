@@ -182,8 +182,34 @@ class CWS_Markdown {
 
 	public function submitbox_actions() {
 		$markdown = isset( $GLOBALS['post'] ) && isset( $GLOBALS['post']->ID ) && $this->is_markdown( $GLOBALS['post']->ID );
-		echo '<style>#submitdiv h2, #submitdiv h3 { margin-left: 38px; } #cws-markdown { position: absolute; top: 5px; left: 10px; } #cws-markdown img { vertical-align: bottom;margin-right: 10px; } #cws-markdown a:active { outline: 0 !important }</style>';
-		echo '<div id="cws-markdown" style="display: none"><a href="#" onclick="return false;"><img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" /></a></div>';
+		echo '
+			<style>
+					#submitdiv h2, #submitdiv h3 {
+						margin-left: 38px;
+					}
+					#cws-markdown {
+						position: absolute;
+						top: 7px;
+						left: 10px;
+					}
+					#cws-markdown img {
+						vertical-align: bottom;
+						margin-right: 10px;
+					}
+					#cws-markdown button {
+						all: unset;
+						display: inline;
+						background: none;
+						color: inherit;
+						font: inherit;
+						border: none;
+						padding: 0;
+						margin: 0;
+						cursor: pointer;
+					}
+			</style>
+		';
+		echo '<div id="cws-markdown" style="display: none"><button type="button"><img ' . ( !$markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-on" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20-solid.png" width="32" height="20" /><img ' . ( $markdown ? 'style="display:none" ' : '' ) . 'class="markdown-status markdown-off" src="' . plugin_dir_url( __FILE__ ) . '/img/32x20.png" width="32" height="20" /></button></div>';
 		echo '<script>document.getElementById("cws-markdown").style.display = "none";</script>';
 		echo '<input style="display: none" type="checkbox" name="cws_using_markdown" id="cws_using_markdown" value="1" ';
 		checked( $this->is_markdown( $GLOBALS['post']->ID ) );
